@@ -49,7 +49,7 @@ public class FileJobConfig {
 
 
     @Bean
-    @StepScope
+    @StepScope // @Value 동적 바인딩을 위한 빈 스코프 설정 -> 프록시로 런타임 사용 시점에 처리됨.
     public ItemReader<ProductVO> fileItemReader(@Value("#{jobParameters['requestDate']}") String requestDate) { // 런타임 요청 시점에 파라미터 바인딩
         return new FlatFileItemReaderBuilder<ProductVO>() // 파일 타입
                 .name("flatFile")
