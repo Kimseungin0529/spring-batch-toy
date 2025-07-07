@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -48,6 +49,7 @@ public class FileJobConfig {
 
 
     @Bean
+    @StepScope
     public ItemReader<ProductVO> fileItemReader(@Value("#{jobParameters['requestDate']}") String requestDate) { // 런타임 요청 시점에 파라미터 바인딩
         return new FlatFileItemReaderBuilder<ProductVO>() // 파일 타입
                 .name("flatFile")
