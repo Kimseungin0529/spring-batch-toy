@@ -39,7 +39,7 @@ spring:
       driver-class-name: com.mysql.jdbc.Driver
   batch:
     job:
-      names: ${job.name:NONE}
-      enabled: false
+      name: ${job.name:fileJob}
+      enabled: true
     jdbc:
       initialize-schema: always

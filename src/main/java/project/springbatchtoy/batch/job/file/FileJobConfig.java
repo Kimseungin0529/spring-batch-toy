@@ -9,9 +9,9 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
+import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,7 +50,7 @@ public class FileJobConfig {
 
     @Bean
     @StepScope // @Value 동적 바인딩을 위한 빈 스코프 설정 -> 프록시로 런타임 사용 시점에 처리됨.
-    public ItemReader<ProductVO> fileItemReader(@Value("#{jobParameters['requestDate']}") String requestDate) { // 런타임 요청 시점에 파라미터 바인딩
+    public FlatFileItemReader<ProductVO> fileItemReader(@Value("#{jobParameters['requestDate']}") String requestDate) { // 런타임 요청 시점에 파라미터 바인딩
         return new FlatFileItemReaderBuilder<ProductVO>() // 파일 타입
                 .name("flatFile")
                 .resource(new ClassPathResource("product_" + requestDate + ".csv")) // 리소스 경로 제공
