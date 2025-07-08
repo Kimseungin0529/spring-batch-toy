@@ -57,7 +57,14 @@ public class ApiStepConfig {
         return new ProductPartitioner(dataSource);
     }
 
-
+    // TODO : ItemReader, processor, writer, partitioner 구체 구현 이해 불가 -> 학습 필요
+    // TODO : 1차로 ItemReader 학습 진행
+    /**
+     * ItemReader 를 사용하면서 jdbc 를 통해 사용하곤 한다. jpa, jdbc 그리고 복잡한 쿼리 혹은 직접 접근을 위해
+     * rowMapper 또는 sql 을 사용하는데 각 기술에 대한 경험 부족으로 무엇을 사용하는 게 나은지 모르겠다.
+     * 아마 복잡하거나 특정 상황에는 jpa 보다 native sql 에 가까워야 하는 경우가 많아 보이는 것으로 예측도니다.
+     * 학습 이후, 다시 개발 진행 예정
+     */
     @Bean
     @StepScope
     public ItemReader<ProductVO> itemReader(@Value("#{stepExecutionContext['product']}") ProductVO productVO) throws Exception {
