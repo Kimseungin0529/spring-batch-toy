@@ -30,10 +30,10 @@ public class ApiStepConfig {
 
 
     @Bean
-    public Step apiMasterStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+    public Step apiMasterStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) throws Exception {
         return new StepBuilder("apiMasterStep", jobRepository)
                 .partitioner(apiSlaveStep(jobRepository, transactionManager).getName(), partitioner())
-                .step(CHUNK_SIZE)
+                .step(apiSlaveStep(jobRepository, transactionManager))
                 .gridSize(3)
                 .taskExecutor(taskExceutor())
                 .build();
@@ -41,11 +41,11 @@ public class ApiStepConfig {
     }
 
     @Bean
-    public Step apiSlaveStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+    public Step apiSlaveStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) throws Exception {
         return new StepBuilder("apiSlaveStep", jobRepository)
                 .<ProductVO, ProductVO>chunk(CHUNK_SIZE)
 
-                .reader(ItemReader())
+                .reader(itemReader(null))
                 .processor(processor())
                 .writer(ItemWriter())
                 .build();
@@ -58,35 +58,37 @@ public class ApiStepConfig {
     }
 
     // TODO : ItemReader, processor, writer, partitioner 구체 구현 이해 불가 -> 학습 필요
-    // TODO : 1차로 ItemReader 학습 진행
     /**
      * ItemReader 를 사용하면서 jdbc 를 통해 사용하곤 한다. jpa, jdbc 그리고 복잡한 쿼리 혹은 직접 접근을 위해
      * rowMapper 또는 sql 을 사용하는데 각 기술에 대한 경험 부족으로 무엇을 사용하는 게 나은지 모르겠다.
-     * 아마 복잡하거나 특정 상황에는 jpa 보다 native sql 에 가까워야 하는 경우가 많아 보이는 것으로 예측도니다.
-     * 학습 이후, 다시 개발 진행 예정
+     * -> rowMapper 는 sql 로 조회한 데이터를 객체로 변환시키는 역할
      */
     @Bean
     @StepScope
     public ItemReader<ProductVO> itemReader(@Value("#{stepExecutionContext['product']}") ProductVO productVO) throws Exception {
 
+        // Jdbc 페이징 배치 처리 설정, builder 형식도 가능하다.
         JdbcPagingItemReader<ProductVO> reader = new JdbcPagingItemReader<>();
-
+        // dataSource 설정
         reader.setDataSource(dataSource);
         reader.setPageSize(CHUNK_SIZE);
-        reader.setRowMapper(new BeanPropertyRowMapper(ProductVO.class));
-
+        // 조회한 값을 I 객체로 변환
+        reader.setRowMapper(new BeanPropertyRowMapper<>(ProductVO.class));
+        // db url 을 보고 맞는 DB 구현체 적용
         MySqlPagingQueryProvider queryProvider = new MySqlPagingQueryProvider();
+        // 가져올 쿼리문 설정
         queryProvider.setSelectClause("id, name, price, type");
         queryProvider.setFromClause("from product");
         queryProvider.setWhereClause("where type = :type");
-
+        // order by 쿼리문 지정, 정렬 기준 설정 가능
         Map<String, Order> sortKeys = new HashMap<>(1);
         sortKeys.put("id", Order.DESCENDING);
         queryProvider.setSortKeys(sortKeys);
 
         reader.setParameterValues(QueryGenerator.getParameterForQuery("type", productVO.getType()));
+        //QueryProvider 설정
         reader.setQueryProvider(queryProvider);
-        reader.afterPropertiesSet();
+        reader.afterPropertiesSet(); // TODO : 무슨 옵션인지 확인하기, partition 으로 추정
 
         return reader;
     }
