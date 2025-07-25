@@ -50,17 +50,18 @@ public class FileJobConfig {
 
     @Bean
     @StepScope // @Value 동적 바인딩을 위한 빈 스코프 설정 -> 프록시로 런타임 사용 시점에 처리됨.
-    public FlatFileItemReader<ProductVO> fileItemReader(@Value("#{jobParameters['requestDate']}") String requestDate) { // 런타임 요청 시점에 파라미터 바인딩
-        return new FlatFileItemReaderBuilder<ProductVO>() // 파일 타입
-                .name("flatFile")
-                .resource(new ClassPathResource("product_" + requestDate + ".csv")) // 리소스 경로 제공
-                .fieldSetMapper(new BeanWrapperFieldSetMapper<>())
-                .targetType(ProductVO.class) // I 타입 선언
-                .linesToSkip(1) // csv 이므로 첫 줄 스킵 처리
-                .delimited().delimiter(",") // csv 특성 상, ',' 단위로 데이터 읽기
-                .names("id", "name", "price", "type") // 각 데이터 변수로 변환하기
-                .build();
-    }
+        public FlatFileItemReader<ProductVO> fileItemReader(@Value("#{jobParameters['requestDate']}") String requestDate) { // 런타임 요청 시점에 파라미터 바인딩
+            return new FlatFileItemReaderBuilder<ProductVO>() // 파일 타입
+                    .name("flatFile")
+                    .resource(new ClassPathResource("product_" + requestDate + ".csv")) // 리소스 상대 경로 제공
+                    .fieldSetMapper(new BeanWrapperFieldSetMapper<>()) // FieldSet 을 변환시키기 위한 FieldSetMapper 지정
+                    // BeanWrapperFieldSetMapper 는 스프링에서 제공하는 fieldSetMapper 구현체
+                    .targetType(ProductVO.class) //fieldSetMapper 를 지정할 때는 I 타입 선언 필수
+                    .linesToSkip(1) // csv 이므로 첫 줄 스킵 처리, 라인 스킵 관련 API
+                    .delimited().delimiter(",") // csv 특성 상, ',' 단위로 데이터 읽기 -> 데이터 단위 처리 지정
+                    .names("id", "name", "price", "type") // 각 데이터 변수로 변환하기 -> names 는 fieldSetMapper 를 통해 변환할 클래스에 대한 필드값 지정
+                    .build();
+        }
 
 
     @Bean
