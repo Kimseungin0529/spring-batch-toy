@@ -12,7 +12,9 @@ import org.springframework.batch.item.database.support.MySqlPagingQueryProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 import project.springbatchtoy.batch.domain.ProductVO;
 import project.springbatchtoy.batch.partition.ProductPartitioner;
@@ -35,8 +37,18 @@ public class ApiStepConfig {
                 .partitioner(apiSlaveStep(jobRepository, transactionManager).getName(), partitioner())
                 .step(apiSlaveStep(jobRepository, transactionManager))
                 .gridSize(3)
-                .taskExecutor(taskExceutor())
+                .taskExecutor(taskExecutor())
                 .build();
+
+    }
+
+    @Bean
+    public TaskExecutor taskExecutor() {
+        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        taskExecutor.setCorePoolSize(3);
+        taskExecutor.setMaxPoolSize(6);
+        taskExecutor.setThreadNamePrefix("api-thread-");
+        return taskExecutor;
 
     }
 
@@ -58,6 +70,7 @@ public class ApiStepConfig {
     }
 
     // TODO : ItemReader, processor, writer, partitioner 구체 구현 이해 불가 -> 학습 필요
+
     /**
      * ItemReader 를 사용하면서 jdbc 를 통해 사용하곤 한다. jpa, jdbc 그리고 복잡한 쿼리 혹은 직접 접근을 위해
      * rowMapper 또는 sql 을 사용하는데 각 기술에 대한 경험 부족으로 무엇을 사용하는 게 나은지 모르겠다.
