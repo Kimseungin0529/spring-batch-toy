@@ -23,6 +23,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import project.springbatchtoy.batch.chunk.processor.ApiItemProcessor1;
 import project.springbatchtoy.batch.chunk.processor.ApiItemProcessor2;
 import project.springbatchtoy.batch.chunk.processor.ApiItemProcessor3;
+import project.springbatchtoy.batch.chunk.writer.ApiItemWriter1;
+import project.springbatchtoy.batch.chunk.writer.ApiItemWriter2;
 import project.springbatchtoy.batch.classfier.ProcessorClassifier;
 import project.springbatchtoy.batch.classfier.WriterClassifier;
 import project.springbatchtoy.batch.domain.ApiRequestVO;
@@ -75,15 +77,17 @@ public class ApiStepConfig {
 
     @Bean
     public ItemWriter ItemWriter() {
-        ClassifierCompositeItemWriter<ApiRequestVO> itemWriter = new ClassifierCompositeItemWriter<>();
+        ClassifierCompositeItemWriter<ApiRequestVO> itemWriter
+                = new ClassifierCompositeItemWriter<>();
 
-        WriterClassifier<ApiRequestVO, ItemWriter<? super ApiRequestVO>> classifier = new WriterClassifier<>();
         Map<String, ItemWriter<ApiRequestVO>> writerMap = new HashMap<>();
         writerMap.put("1", new ApiItemWriter1());
         writerMap.put("2", new ApiItemWriter2());
         writerMap.put("3", new ApiItemWriter3());
 
+        WriterClassifier<ApiRequestVO, ItemWriter<? super ApiRequestVO>> classifier = new WriterClassifier<>();
         classifier.setWriterMap(writerMap);
+
         itemWriter.setClassifier(classifier);
 
         return itemWriter;
