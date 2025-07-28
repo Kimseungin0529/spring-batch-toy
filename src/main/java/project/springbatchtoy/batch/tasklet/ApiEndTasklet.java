@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 public class ApiEndTasklet implements Tasklet {
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        return null;
+        System.out.println("ApiService is ended");
+
+        return RepeatStatus.FINISHED;
     }
 }

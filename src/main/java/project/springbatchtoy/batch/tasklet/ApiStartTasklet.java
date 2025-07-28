@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 public class ApiStartTasklet implements Tasklet {
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        return null;
+        System.out.println("ApiService is started");
+
+        return RepeatStatus.FINISHED;
     }
 }
