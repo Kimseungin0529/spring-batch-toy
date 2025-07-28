@@ -1,12 +1,13 @@
 package project.springbatchtoy.batch.chunk.writer;
 
+
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import project.springbatchtoy.batch.domain.ApiRequestVO;
 import project.springbatchtoy.batch.domain.ApiResponse;
 import project.springbatchtoy.service.AbstractApiService;
 
-public class ApiItemWriter1 implements ItemWriter<ApiRequestVO> {
+public class ApiItemWriter3 implements ItemWriter<ApiRequestVO> {
 
     private AbstractApiService apiService;
 
@@ -16,7 +17,10 @@ public class ApiItemWriter1 implements ItemWriter<ApiRequestVO> {
         System.out.println("responseVO = " + responseVO);
     }
 
-    public ApiItemWriter1(AbstractApiService apiService) {
+    public ApiItemWriter3(AbstractApiService apiService) {
         this.apiService = apiService;
     }
+
 }
+
+

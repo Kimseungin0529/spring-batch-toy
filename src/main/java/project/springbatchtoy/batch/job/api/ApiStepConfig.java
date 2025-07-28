@@ -25,11 +25,15 @@ import project.springbatchtoy.batch.chunk.processor.ApiItemProcessor2;
 import project.springbatchtoy.batch.chunk.processor.ApiItemProcessor3;
 import project.springbatchtoy.batch.chunk.writer.ApiItemWriter1;
 import project.springbatchtoy.batch.chunk.writer.ApiItemWriter2;
+import project.springbatchtoy.batch.chunk.writer.ApiItemWriter3;
 import project.springbatchtoy.batch.classfier.ProcessorClassifier;
 import project.springbatchtoy.batch.classfier.WriterClassifier;
 import project.springbatchtoy.batch.domain.ApiRequestVO;
 import project.springbatchtoy.batch.domain.ProductVO;
 import project.springbatchtoy.batch.partition.ProductPartitioner;
+import project.springbatchtoy.service.ApiService1;
+import project.springbatchtoy.service.ApiService2;
+import project.springbatchtoy.service.ApiService3;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -41,6 +45,10 @@ public class ApiStepConfig {
 
     private final DataSource dataSource;
     private final static int CHUNK_SIZE = 10;
+
+    private final ApiService1 apiService1;
+    private final ApiService2 apiService2;
+    private final ApiService3 apiService3;
 
 
     @Bean
@@ -81,9 +89,9 @@ public class ApiStepConfig {
                 = new ClassifierCompositeItemWriter<>();
 
         Map<String, ItemWriter<ApiRequestVO>> writerMap = new HashMap<>();
-        writerMap.put("1", new ApiItemWriter1());
-        writerMap.put("2", new ApiItemWriter2());
-        writerMap.put("3", new ApiItemWriter3());
+        writerMap.put("1", new ApiItemWriter1(apiService1));
+        writerMap.put("2", new ApiItemWriter2(apiService2));
+        writerMap.put("3", new ApiItemWriter3(apiService3));
 
         WriterClassifier<ApiRequestVO, ItemWriter<? super ApiRequestVO>> classifier = new WriterClassifier<>();
         classifier.setWriterMap(writerMap);
