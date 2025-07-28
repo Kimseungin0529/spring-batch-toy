@@ -18,6 +18,9 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
+import project.springbatchtoy.batch.chunk.processor.ApiItemProcessor1;
+import project.springbatchtoy.batch.chunk.processor.ApiItemProcessor2;
+import project.springbatchtoy.batch.chunk.processor.ApiItemProcessor3;
 import project.springbatchtoy.batch.classfier.ProcessorClassifier;
 import project.springbatchtoy.batch.domain.ApiRequestVO;
 import project.springbatchtoy.batch.domain.ProductVO;
@@ -69,12 +72,20 @@ public class ApiStepConfig {
 
     @Bean
     public ItemProcessor processor() {
-        ClassifierCompositeItemProcessor<ProductVO, ApiRequestVO> itemProcessor = new ClassifierCompositeItemProcessor<>();
+        ClassifierCompositeItemProcessor<ProductVO, ApiRequestVO> itemProcessor
+                = new ClassifierCompositeItemProcessor<>();
+        Map<String, ItemProcessor<ProductVO, ApiRequestVO>> processorMap = new HashMap<>();
+        processorMap.put("1", new ApiItemProcessor1());
+        processorMap.put("2", new ApiItemProcessor2());
+        processorMap.put("3", new ApiItemProcessor3());
+
         ProcessorClassifier<ProductVO, ItemProcessor<?, ? extends ApiRequestVO>> classifier = new ProcessorClassifier<>();
+        classifier.setProcessorMap(processorMap);
+
+        itemProcessor.setClassifier(classifier);
 
 
-
-        return null;
+        return itemProcessor;
     }
 
 
