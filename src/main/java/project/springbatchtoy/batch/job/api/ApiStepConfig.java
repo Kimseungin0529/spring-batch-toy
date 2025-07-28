@@ -75,9 +75,17 @@ public class ApiStepConfig {
 
     @Bean
     public ItemWriter ItemWriter() {
-        ClassifierCompositeItemWriter<?> itemWriter = new ClassifierCompositeItemWriter<>();
+        ClassifierCompositeItemWriter<ApiRequestVO> itemWriter = new ClassifierCompositeItemWriter<>();
 
-        WriterClassifier<ProductVO, ItemProcessor<?, ? extends ApiRequestVO>> classifier = new WriterClassifier<>();
+        WriterClassifier<ApiRequestVO, ItemWriter<? super ApiRequestVO>> classifier = new WriterClassifier<>();
+        Map<String, ItemWriter<ApiRequestVO>> writerMap = new HashMap<>();
+        writerMap.put("1", new ApiItemWriter1());
+        writerMap.put("2", new ApiItemWriter2());
+        writerMap.put("3", new ApiItemWriter3());
+
+        classifier.setWriterMap(writerMap);
+        itemWriter.setClassifier(classifier);
+
         return itemWriter;
     }
 
