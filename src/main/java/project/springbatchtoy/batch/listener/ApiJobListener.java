@@ -4,6 +4,8 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+
 @Component
 public class ApiJobListener implements JobExecutionListener {
 
@@ -14,6 +16,7 @@ public class ApiJobListener implements JobExecutionListener {
 
     @Override
     public void afterJob(JobExecution jobExecution) {
-        JobExecutionListener.super.afterJob(jobExecution);
+        Duration duration = Duration.between(jobExecution.getEndTime(), jobExecution.getStartTime());
+        System.out.println("총 소요 시간 : " + duration.toMillis());
     }
 }
