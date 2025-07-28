@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @Builder
 public class ApiResponse {
-    private String status;
+    private int status;
     private String msg;
 }
