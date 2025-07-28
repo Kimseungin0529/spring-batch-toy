@@ -7,10 +7,12 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.Order;
 import org.springframework.batch.item.database.support.MySqlPagingQueryProvider;
 import org.springframework.batch.item.support.ClassifierCompositeItemProcessor;
+import org.springframework.batch.item.support.ClassifierCompositeItemWriter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +24,7 @@ import project.springbatchtoy.batch.chunk.processor.ApiItemProcessor1;
 import project.springbatchtoy.batch.chunk.processor.ApiItemProcessor2;
 import project.springbatchtoy.batch.chunk.processor.ApiItemProcessor3;
 import project.springbatchtoy.batch.classfier.ProcessorClassifier;
+import project.springbatchtoy.batch.classfier.WriterClassifier;
 import project.springbatchtoy.batch.domain.ApiRequestVO;
 import project.springbatchtoy.batch.domain.ProductVO;
 import project.springbatchtoy.batch.partition.ProductPartitioner;
@@ -68,6 +71,14 @@ public class ApiStepConfig {
                 .processor(processor())
                 .writer(ItemWriter())
                 .build();
+    }
+
+    @Bean
+    public ItemWriter ItemWriter() {
+        ClassifierCompositeItemWriter<?> itemWriter = new ClassifierCompositeItemWriter<>();
+
+        WriterClassifier<ProductVO, ItemProcessor<?, ? extends ApiRequestVO>> classifier = new WriterClassifier<>();
+        return itemWriter;
     }
 
     @Bean
