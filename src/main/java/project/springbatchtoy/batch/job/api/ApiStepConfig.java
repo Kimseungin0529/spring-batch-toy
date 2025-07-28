@@ -11,7 +11,6 @@ import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.Order;
 import org.springframework.batch.item.database.support.MySqlPagingQueryProvider;
 import org.springframework.batch.item.support.ClassifierCompositeItemProcessor;
-import org.springframework.batch.item.support.builder.ClassifierCompositeItemProcessorBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +18,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
+import project.springbatchtoy.batch.classfier.ProcessorClassifier;
 import project.springbatchtoy.batch.domain.ApiRequestVO;
 import project.springbatchtoy.batch.domain.ProductVO;
 import project.springbatchtoy.batch.partition.ProductPartitioner;
@@ -69,6 +69,8 @@ public class ApiStepConfig {
 
     @Bean
     public ItemProcessor processor() {
+        ClassifierCompositeItemProcessor<ProductVO, ApiRequestVO> itemProcessor = new ClassifierCompositeItemProcessor<>();
+        ProcessorClassifier<ProductVO, ItemProcessor<?, ? extends ApiRequestVO>> classifier = new ProcessorClassifier<>();
 
 
 
