@@ -10,7 +10,7 @@ public class ApiItemProcessor2 implements ItemProcessor<ProductVO, ApiRequestVO>
 
         return ApiRequestVO.builder()
                 .id(item.getId())
-                .product(item)
+                .productVO(item)
                 .build();
     }
 }

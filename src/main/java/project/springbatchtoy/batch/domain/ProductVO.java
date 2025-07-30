@@ -1,16 +1,19 @@
 package project.springbatchtoy.batch.domain;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
+@Data
 @Builder
-@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductVO {
+public class ProductVO implements Serializable {
     private Long id;
     private String name;
     private int price;
     private String type;
-
-
 }

@@ -1,6 +1,7 @@
 package project.springbatchtoy.service;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -10,14 +11,14 @@ import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import project.springbatchtoy.batch.domain.ApiInfo;
 import project.springbatchtoy.batch.domain.ApiRequestVO;
-import project.springbatchtoy.batch.domain.ApiResponse;
+import project.springbatchtoy.batch.domain.ApiResponseVO;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
 public abstract class AbstractApiService {
-    public ApiResponse service(List<? extends ApiRequestVO> apiRequest) {
+    public ApiResponseVO service(List<? extends ApiRequestVO> apiRequest) {
         RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
         RestTemplate restTemplate = restTemplateBuilder.errorHandler(new ResponseErrorHandler() {
             @Override
@@ -32,15 +33,18 @@ public abstract class AbstractApiService {
         }).build();
 
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
         ApiInfo apiInfo = ApiInfo.builder()
                 .apiRequestList(apiRequest)
                 .build();
+
+        HttpEntity<ApiInfo> reqEntity = new HttpEntity<>(apiInfo, headers);
 
         return doApiService(restTemplate, apiInfo);
 
     }
 
-    protected abstract ApiResponse doApiService(RestTemplate restTemplate, ApiInfo apiInfo);
+    protected abstract ApiResponseVO doApiService(RestTemplate restTemplate, ApiInfo apiInfo);
 }

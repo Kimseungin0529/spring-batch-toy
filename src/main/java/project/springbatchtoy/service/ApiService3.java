@@ -5,17 +5,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import project.springbatchtoy.batch.domain.ApiInfo;
-import project.springbatchtoy.batch.domain.ApiResponse;
+import project.springbatchtoy.batch.domain.ApiResponseVO;
 
 @Service
 public class ApiService3 extends AbstractApiService {
 
     @Override
-    protected ApiResponse doApiService(RestTemplate restTemplate, ApiInfo apiInfo) {
-        ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:8083/product/3", apiInfo, String.class);
+    protected ApiResponseVO doApiService(RestTemplate restTemplate, ApiInfo apiInfo) {
+        ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:8083/api/product/3", apiInfo, String.class);
         HttpStatusCode statusCode = response.getStatusCode();
 
-        return ApiResponse.builder()
+        return ApiResponseVO.builder()
                 .status(statusCode.value())
                 .msg(response.getBody())
                 .build();

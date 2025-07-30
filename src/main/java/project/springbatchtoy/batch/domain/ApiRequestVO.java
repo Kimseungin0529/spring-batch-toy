@@ -7,5 +7,6 @@ import lombok.Data;
 @Builder
 public class ApiRequestVO {
     private long id;
-    private ProductVO product;
+    private ProductVO productVO;
+    private ApiResponseVO apiResponseVO;
 }

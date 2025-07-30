@@ -20,17 +20,16 @@ public class ProductPartitioner implements Partitioner {
     @Override
     public Map<String, ExecutionContext> partition(int gridSize) {
         ProductVO[] productList = QueryGenerator.getProductList(dataSource);
-        Map<String, ExecutionContext> map = new HashMap<>();
+        Map<String, ExecutionContext> result = new HashMap<>();
 
         for (int i = 0; i < productList.length; i++) {
-            ExecutionContext executionContext = new ExecutionContext();
+            ExecutionContext value = new ExecutionContext();
 
-            executionContext.put("product", productList[i]);
-            map.put("product" + i, executionContext);
+            result.put("product" + i, value);
+            value.put("product", productList[i]);
         }
 
-        return map;
+        return result;
     }
-
 
 }

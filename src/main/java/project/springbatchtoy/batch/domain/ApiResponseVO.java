@@ -1,11 +1,15 @@
 package project.springbatchtoy.batch.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-public class ApiResponse {
+@NoArgsConstructor
+@AllArgsConstructor
+public class ApiResponseVO {
     private int status;
     private String msg;
 }

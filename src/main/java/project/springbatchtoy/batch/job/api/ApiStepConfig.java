@@ -78,44 +78,8 @@ public class ApiStepConfig {
                 .<ProductVO, ProductVO>chunk(CHUNK_SIZE, transactionManager)
                 .reader(itemReader(null))
                 .processor(processor())
-                .writer(ItemWriter())
+                .writer(itemWriter())
                 .build();
-    }
-
-    @Bean
-    public ItemWriter ItemWriter() {
-        ClassifierCompositeItemWriter<ApiRequestVO> itemWriter
-                = new ClassifierCompositeItemWriter<>();
-
-        Map<String, ItemWriter<ApiRequestVO>> writerMap = new HashMap<>();
-        writerMap.put("1", new ApiItemWriter1(apiService1));
-        writerMap.put("2", new ApiItemWriter2(apiService2));
-        writerMap.put("3", new ApiItemWriter3(apiService3));
-
-        WriterClassifier<ApiRequestVO, ItemWriter<? super ApiRequestVO>> classifier = new WriterClassifier<>();
-        classifier.setWriterMap(writerMap);
-
-        itemWriter.setClassifier(classifier);
-
-        return itemWriter;
-    }
-
-    @Bean
-    public ItemProcessor processor() {
-        ClassifierCompositeItemProcessor<ProductVO, ApiRequestVO> itemProcessor
-                = new ClassifierCompositeItemProcessor<>();
-        Map<String, ItemProcessor<ProductVO, ApiRequestVO>> processorMap = new HashMap<>();
-        processorMap.put("1", new ApiItemProcessor1());
-        processorMap.put("2", new ApiItemProcessor2());
-        processorMap.put("3", new ApiItemProcessor3());
-
-        ProcessorClassifier<ProductVO, ItemProcessor<?, ? extends ApiRequestVO>> classifier = new ProcessorClassifier<>();
-        classifier.setProcessorMap(processorMap);
-
-        itemProcessor.setClassifier(classifier);
-
-
-        return itemProcessor;
     }
 
 
@@ -124,40 +88,72 @@ public class ApiStepConfig {
         return new ProductPartitioner(dataSource);
     }
 
-    // TODO : ItemReader, processor, writer, partitioner 구체 구현 이해 불가 -> 학습 필요
 
-    /**
-     * ItemReader 를 사용하면서 jdbc 를 통해 사용하곤 한다. jpa, jdbc 그리고 복잡한 쿼리 혹은 직접 접근을 위해
-     * rowMapper 또는 sql 을 사용하는데 각 기술에 대한 경험 부족으로 무엇을 사용하는 게 나은지 모르겠다.
-     * -> rowMapper 는 sql 로 조회한 데이터를 객체로 변환시키는 역할
-     */
     @Bean
     @StepScope
     public ItemReader<ProductVO> itemReader(@Value("#{stepExecutionContext['product']}") ProductVO productVO) throws Exception {
 
         // Jdbc 페이징 배치 처리 설정, builder 형식도 가능하다.
         JdbcPagingItemReader<ProductVO> reader = new JdbcPagingItemReader<>();
-        // dataSource 설정
-        reader.setDataSource(dataSource);
+
+        reader.setDataSource(dataSource); // dataSource 설정
         reader.setPageSize(CHUNK_SIZE);
-        // 조회한 값을 I 객체로 변환
-        reader.setRowMapper(new BeanPropertyRowMapper<>(ProductVO.class));
-        // db url 을 보고 맞는 DB 구현체 적용
-        MySqlPagingQueryProvider queryProvider = new MySqlPagingQueryProvider();
-        // 가져올 쿼리문 설정
-        queryProvider.setSelectClause("id, name, price, type");
+        reader.setRowMapper(new BeanPropertyRowMapper<>(ProductVO.class)); // 조회한 값을 I 객체로 변환
+
+        MySqlPagingQueryProvider queryProvider = new MySqlPagingQueryProvider(); // db url 을 보고 맞는 DB 구현체 적용
+        queryProvider.setSelectClause("id, name, price, type"); // 가져올 쿼리문 설정
         queryProvider.setFromClause("from product");
         queryProvider.setWhereClause("where type = :type");
-        // order by 쿼리문 지정, 정렬 기준 설정 가능
-        Map<String, Order> sortKeys = new HashMap<>(1);
+
+        Map<String, Order> sortKeys = new HashMap<>(1); // order by 쿼리문 지정, 정렬 기준 설정 가능
         sortKeys.put("id", Order.DESCENDING);
         queryProvider.setSortKeys(sortKeys);
 
-        reader.setParameterValues(QueryGenerator.getParameterForQuery("type", productVO.getType()));
-        //QueryProvider 설정
+        reader.setParameterValues(QueryGenerator.getParameterForQuery("type", productVO.getType())); //QueryProvider 설정
         reader.setQueryProvider(queryProvider);
         reader.afterPropertiesSet(); // TODO : 무슨 옵션인지 확인하기, partition 으로 추정
 
         return reader;
     }
+
+
+
+    @Bean
+    public ItemProcessor processor() {
+        ClassifierCompositeItemProcessor<ProductVO, ApiRequestVO> processor
+                = new ClassifierCompositeItemProcessor<>();
+        ProcessorClassifier<ProductVO, ItemProcessor<?, ? extends ApiRequestVO>> classifier = new ProcessorClassifier<>();
+
+        Map<String, ItemProcessor<ProductVO, ApiRequestVO>> processorMap = new HashMap<>();
+        processorMap.put("1", new ApiItemProcessor1());
+        processorMap.put("2", new ApiItemProcessor2());
+        processorMap.put("3", new ApiItemProcessor3());
+
+        classifier.setProcessorMap(processorMap);
+
+        processor.setClassifier(classifier);
+
+        return processor;
+    }
+
+    @Bean
+    public ItemWriter itemWriter() {
+        ClassifierCompositeItemWriter<ApiRequestVO> writer
+                = new ClassifierCompositeItemWriter<>();
+        WriterClassifier<ApiRequestVO, ItemWriter<? super ApiRequestVO>> classifier = new WriterClassifier<>();
+
+        Map<String, ItemWriter<ApiRequestVO>> writerMap = new HashMap<>();
+        writerMap.put("1", new ApiItemWriter1(apiService1));
+        writerMap.put("2", new ApiItemWriter2(apiService2));
+        writerMap.put("3", new ApiItemWriter3(apiService3));
+
+
+        classifier.setWriterMap(writerMap);
+
+        writer.setClassifier(classifier);
+
+        return writer;
+    }
+
+
 }
