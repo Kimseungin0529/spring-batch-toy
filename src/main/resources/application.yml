@@ -39,7 +39,8 @@ spring:
       driver-class-name: com.mysql.jdbc.Driver
   batch:
     job:
-      name: ${job.name:fileJob}
+      name: ${job.name:apiJob}
+      # Job 은 하나만 실행 가능하기에 apiJob, fileJob 등 환경에 맞게 변경해줘야 함.
       enabled: true
     jdbc:
       initialize-schema: always

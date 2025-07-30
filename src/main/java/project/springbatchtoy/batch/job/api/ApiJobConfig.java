@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +37,7 @@ public class ApiJobConfig {
         // API 호출과 처리에 대한 전반적인 관리를 위한 Job
         return new JobBuilder("apiJob", jobRepository)
                 .listener(apiJobListener)
+                .incrementer(new RunIdIncrementer())
                 .start(apiStep1(jobRepository, transactionManager))
                 .next(jobStep) // 실제 API 호출을 처리할 JobStep
                 .next(apiStep2(jobRepository, transactionManager))

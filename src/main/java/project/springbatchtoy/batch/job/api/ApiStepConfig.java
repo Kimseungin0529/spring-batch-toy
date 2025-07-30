@@ -76,7 +76,6 @@ public class ApiStepConfig {
     public Step apiSlaveStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) throws Exception {
         return new StepBuilder("apiSlaveStep", jobRepository)
                 .<ProductVO, ProductVO>chunk(CHUNK_SIZE, transactionManager)
-
                 .reader(itemReader(null))
                 .processor(processor())
                 .writer(ItemWriter())
